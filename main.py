@@ -7,7 +7,8 @@ from PIL import Image, ImageTk
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QColor
 from PySide6.QtCore import QTimer
-from QtWindows import LoginWindow
+from QtWindows import LoginWindow 
+from QtWindows import MainWindow
 import sys
 import logging
 
@@ -42,7 +43,9 @@ class main():
                 self.login(username,password)
                 
                 logging.info("LOG | 200 OK, LOGGED IN")
-                pass
+                self.window = MainWindow()
+
+                self.window.show()
         except FileNotFoundError:
             self.window.show()
             self.window.login_attempt.connect(self.login)
