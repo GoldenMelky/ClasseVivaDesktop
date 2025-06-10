@@ -37,45 +37,55 @@ class Utente:
         endpoint = apiUrl + f"v1/students/{self.login["studentId"]}/agenda/all/{begin}/{end}"
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)
+
     def assenze(self):
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/absences/details"
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)
+
     def didattica(self, contentId: str = ""):
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/didactics"
         if contentId:
             endpoint = endpoint + "/item/" + contentId
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)
+
     def bacheca(self):
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/noticeboard"
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)
+
     def libri(self):
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/schoolbooks"
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)
+
     def voti(self):
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/grades"
         response = requests.get(endpoint, headers=self.headers)
         print(response.text)
         return json.loads(response.text)
+
     def note(self):
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/notes/all"
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)
+
     def periodi(self):
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/periods"
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)
+
     def materie(self):
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/subjects"
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)
+
     def documenti(self):
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/documents"
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)
+
     def lezioni(self, begin: str, end: str = ""):
         if end == "":
             end = begin

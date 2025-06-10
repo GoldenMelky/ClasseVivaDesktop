@@ -9,22 +9,28 @@ from PySide6.QtGui import QColor
 from PySide6.QtCore import QTimer
 from QtWindows import LoginWindow
 import sys
+import logging
 
+
+logging.basicConfig(level=logging.INFO)
 
 class main():
     def __init__(self):
         self.getCredentials()
 
-    def login(self,username,password):
+    def login(self,username,password): # VICCCC DEVI SCRIVERE I COMMENTI, STO FACEDO IL REVERSE DI UN PROGRAMMA A CUI HO ACCESSO AL SC 
         try:
             self.user = cvvApi.Utente(username,password)
             with open("credenziali.json", "w") as file:
                 creds = {"username":username,"password":password}
                 file.write(str(json.dumps(creds)))
                 self.window.hide()
+
+                logging.info('LOG | 200 OK, SAVED')
         except Exception as e:
             self.window.error_label.setText(str(e))
-            QTimer.singleShot(0,self.window.resize)        
+            QTimer.singleShot(0,self.window.resize)  
+
         
     def getCredentials(self):
         self.window = LoginWindow()
@@ -34,10 +40,12 @@ class main():
                 username = creds["username"]
                 password = creds["password"]
                 self.login(username,password)
+                
+                logging.info("LOG | 200 OK, LOGGED IN")
+                pass
         except FileNotFoundError:
             self.window.show()
             self.window.login_attempt.connect(self.login)
-            
 
 def today(user, data: str=""):
     if not data:
@@ -108,7 +116,26 @@ def voti(user):
         })
     return output
 
+
 if __name__ == "__main__":
-    app = QApplication(sys.argv)    
-    main = main()
-    app.exec()
+    def console_listener():
+        while True:
+            cmd = input(">> ").strip()
+            if cmd.lower() == "exit":
+                logging.info("LOG | Exit command received. Closing app.")
+                QApplication.quit()
+                break
+
+    try:
+        app = QApplication(sys.argv)
+        main = main()  # considera rinominare la classe in MainApp per chiarezza
+
+        # Avvia il listener da console in un thread separato
+        Thread(target=console_listener, daemon=True).start()
+
+        app.exec()
+    except KeyboardInterrupt:
+        logging.warning("KeyboardInterrupt | Manual shutdown detected.")
+
+
+# SONO ATTUALMENTE LE 01:23 AM E STO IPLEMENTANDO IL LOGGING QUI NON SO PERCHÈ :3

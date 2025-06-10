@@ -1,7 +1,2 @@
-credenziali.json
-.python-version
-__pycache__/*
-main chatgpt qt.py
-main chatgpt tk.py
-qttest.py
-ccredenziali.json
+# Created by venv; see https://docs.python.org/3/library/venv.html
+*
