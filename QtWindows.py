@@ -1,5 +1,7 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QPushButton
+from PySide6.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QPushButton, QCalendarWidget, QGridLayout,QToolButton
 from PySide6.QtCore import Signal, Qt, QSize
+from PySide6.QtGui import QPixmap, QPalette, QIcon
+
 
 class LoginWindow(QMainWindow):
     login_attempt = Signal(str, str)
@@ -52,8 +54,63 @@ class LoginWindow(QMainWindow):
         self.setFixedSize(self.size())  
 
 class MainWindow(QMainWindow):
+    icon_paths = [
+        "icons/agenda.svg",
+        "icons/lezioni.svg",
+        "icons/voti.svg",
+        "icons/note.svg"
+    ]
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("ClasseViva")
+        
+        iconbar_layout = QVBoxLayout()
+        for iconpath in self.icon_paths:
+            btn = QToolButton()
+            icon=QPixmap(iconpath)
+            btn.setFixedSize(40,40)
+            btn.setIcon(icon)
+            btn.setIconSize(btn.size())
+            btn.setStyleSheet("background: transparent; border: none;")
+            btn.setFocusPolicy(Qt.NoFocus)
+            iconbar_layout.addWidget(btn)
+        iconbar_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        setting_layout = QVBoxLayout()
+        sett = QToolButton()
+        icon=QPixmap("icons/menu.svg")
+        sett.setFixedSize(40,40)
+        sett.setIcon(icon)
+        sett.setIconSize(btn.size())
+        sett.setStyleSheet("background: transparent; border: none;")
+        sett.setFocusPolicy(Qt.NoFocus)
+
+
+        setting_layout.addWidget(sett)
+        setting_layout.setAlignment(Qt.AlignmentFlag.AlignBottom)
+
+        sidebar_layout = QVBoxLayout()
+        sidebar_layout.addLayout(iconbar_layout)
+        sidebar_layout.addLayout(setting_layout)
+        sidebar_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+        sidebar = QWidget()
+        sidebar.setLayout(sidebar_layout)
+        sidebar.setFixedWidth(sidebar.sizeHint().width())
+
+        events = QVBoxLayout()
+        label2 = QLabel("iconbar")
+        label3 = QLabel("iconbar")
+        events.addWidget(label2)
+        events.addWidget(label3)
+
+        layout = QHBoxLayout()
+        layout.addWidget(sidebar)
+        layout.addLayout(events)
+
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+        self.resize(600,400)
+
         
         
