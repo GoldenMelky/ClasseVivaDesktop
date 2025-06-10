@@ -1,82 +1,45 @@
 import cvvApi
-from tkinter import ttk
-from tkinter import *
-from tkcalendar import *
 import json
 from datetime import datetime
 from threading import Thread
 from time import sleep
 from PIL import Image, ImageTk
-
-splash = Tk()
-frame = Frame(splash, background="#e40b29")
-frame.pack(fill=BOTH, expand=True)
-splash.title("Login...")
-splash.geometry("317x150")
-spalshImage = ImageTk.PhotoImage(Image.open("classevivaSplash.png").resize((317, 100)))
-panel = Label(frame, image=spalshImage, background="#e40b29")
-panel.pack()
-loginLabel = Label(frame, text="Login in corso...", background="#e40b29", foreground="white", font=(16))
-loginLabel.pack()
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QColor
+from PySide6.QtCore import QTimer
+from QtWindows import LoginWindow
+import sys
 
 
-def loginButton():
-    password = password_entry.get()
-    username = username_entry.get()
-    try:
-        global user 
-        user = loginFunc(username, password)
-        login.destroy()
-    except Exception as e:
-        error_label.config(text=f"Errore: {str(e)}")
-        error_label.pack(pady=5)
-        return
+class main():
+    def __init__(self):
+        self.getCredentials()
 
-def loginFunc(username,password):
-    global user
-    user = cvvApi.Utente(username, password)
-    loginLabel.config(text=f"Ciao {user.login["firstName"].title()}")
-    with open("credenziali.json", "w") as file:
-        creds = {"username":username,"password":password}
-        file.write(str(json.dumps(creds)))
-    splash.destroy()
-    
+    def login(self,username,password):
+        try:
+            self.user = cvvApi.Utente(username,password)
+            with open("credenziali.json", "w") as file:
+                creds = {"username":username,"password":password}
+                file.write(str(json.dumps(creds)))
+                self.window.hide()
+        except Exception as e:
+            self.window.error_label.setText(str(e))
+            QTimer.singleShot(0,self.window.resize)        
+        
+    def getCredentials(self):
+        self.window = LoginWindow()
+        try:
+            with open("credenziali.json", "r") as file:
+                creds = json.loads(file.read())
+                username = creds["username"]
+                password = creds["password"]
+                self.login(username,password)
+        except FileNotFoundError:
+            self.window.show()
+            self.window.login_attempt.connect(self.login)
+            
 
-try:
-    with open("credenziali.json", "r") as file:
-        creds = json.loads(file.read())
-        username = creds["username"]
-        password = creds["password"]
-        t = Thread(target=loginFunc, args=(username, password))
-        t.start()
-except FileNotFoundError:
-    login = Tk()
-    login.attributes(topmost=True)
-    login.title("Login")
-    login.geometry("350x200")
-    login.resizable(False, False)
-    
-    username = StringVar()
-    password = StringVar()
-
-    username_label = ttk.Label(login, text="Username:")
-    username_label.pack(pady=5)
-    username_entry = ttk.Entry(login,textvariable=username)
-    username_entry.pack(pady=5)
-    username_entry.focus()
-
-    password_label = ttk.Label(login, text="Password:")
-    password_label.pack(pady=5)
-    password_entry = ttk.Entry(login,textvariable=password, show="*")
-    password_entry.pack(pady=5)
-
-    error_label = ttk.Label(login, text="", foreground="red")
-    
-    login_button = ttk.Button(login, text="Login", command=loginButton)
-    login_button.pack(pady=5)
-    login.mainloop()
-
-def today(data: str=""):
+def today(user, data: str=""):
     if not data:
         data = datetime.now().strftime("%Y%m%d")
     output = []
@@ -122,7 +85,7 @@ def today(data: str=""):
                 })
     return output
 
-def note():
+def note(user):
     note = user.note()
     output = []
     for i in note.values():
@@ -134,7 +97,7 @@ def note():
             })
     return output
 
-def voti():
+def voti(user):
     voti = user.voti()
     output = []
     for voto in voti["grades"]:
@@ -145,14 +108,7 @@ def voti():
         })
     return output
 
-def main():
-    root = Tk()
-    root.title("ClasseViva")
-    root.geometry("300x200")
-
-    # cal = Calendar(root,date_pattern="YYYYMMDD")
-    # cal.pack()
-    # cal.bind("<<CalendarSelected>>", lambda e: print(today(cal.get_date())))
-    root.mainloop()
-splash.mainloop()
-#main()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)    
+    main = main()
+    app.exec()
