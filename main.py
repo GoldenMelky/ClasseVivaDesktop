@@ -34,24 +34,34 @@ else:
 
 DATA = config['DEFAULT'].get('data_dir', 'data/')
 CREDENZIALI_JSON = config['DEFAULT'].get('credenziali_file', 'data/credenziali.json')
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+#logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 class main():
     def __init__(self):
         self.getCredentials()
 
+
+    def startMainWindow(self):
+        self.window = MainWindow()
+        self.window.show()
+        self.window.sidebar_clicked.connect(self.sidebar_clicked)
+        self.window.set_events(today(self.user, "20250606"))
+
     # Tenta il login, se va a buon fine aggiorna le credenziali in credenziali.json, sennò da errore all'utente
     def login(self,username,password): # VICCCC DEVI SCRIVERE I COMMENTI, STO FACEDO IL REVERSE DI UN PROGRAMMA A CUI HO ACCESSO AL SC 
         try:
+            if os.path.exists(CREDENZIALI_JSON):
+                logging.info('LOG | Credentials file already exists. Skipping login.')
+                return
             self.user = API_HANDLER.Utente(username,password)
             with open(CREDENZIALI_JSON, "w") as file:
                 creds = {"username":username,"password":password}
                 file.write(str(json.dumps(creds)))
-                self.window.hide()
+                self.window.close()
 
                 logging.info('LOG | 200 OK, SAVED')
                 self.window = MainWindow()
-
                 self.window.show()
         except Exception as e:
             self.window.error_label.setText(str(e))
