@@ -109,7 +109,7 @@ class MainWindow(QMainWindow):
             btn.setFixedSize(40,40)
             btn.setIcon(icon)
             btn.setIconSize(btn.size())
-            btn.setStyleSheet("background: transparent; border: none;")
+            #btn.setStyleSheet("background: transparent; border: none;")
             btn.setFocusPolicy(Qt.NoFocus)
             btn.setObjectName(iconpath.split("/")[-1].split(".")[0])
             btn.clicked.connect(lambda checked, b=btn: self.sidebar_clicked.emit(b.objectName()))
