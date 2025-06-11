@@ -1,4 +1,4 @@
-import cvvApi
+import api.handler.API_HANDLER as API_HANDLER
 import json
 from datetime import datetime
 from threading import Thread
@@ -7,12 +7,33 @@ from PIL import Image, ImageTk
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QColor
 from PySide6.QtCore import QTimer
-from QtWindows import LoginWindow 
-from QtWindows import MainWindow
+from qt.QtWindows import LoginWindow 
+from qt.QtWindows import MainWindow
 import sys
 import logging
+import configparser
+import os
 
+#########################################
+#              SETTINGS                 #
+#########################################
+CONFIG_FILE = "config.conf"
 
+config = configparser.ConfigParser()
+
+# Create default config if not exists
+if not os.path.exists(CONFIG_FILE):
+    config['DEFAULT'] = {
+        'data_dir': 'data/',
+        'credenziali_file': 'data/credenziali.json'
+    }
+    with open(CONFIG_FILE, 'w') as configfile:
+        config.write(configfile)
+else:
+    config.read(CONFIG_FILE)
+
+DATA = config['DEFAULT'].get('data_dir', 'data/')
+CREDENZIALI_JSON = config['DEFAULT'].get('credenziali_file', 'data/credenziali.json')
 logging.basicConfig(level=logging.INFO)
 
 class main():
@@ -21,13 +42,16 @@ class main():
 
     def login(self,username,password): # VICCCC DEVI SCRIVERE I COMMENTI, STO FACEDO IL REVERSE DI UN PROGRAMMA A CUI HO ACCESSO AL SC 
         try:
-            self.user = cvvApi.Utente(username,password)
-            with open("credenziali.json", "w") as file:
+            self.user = API_HANDLER.Utente(username,password)
+            with open(CREDENZIALI_JSON, "w") as file:
                 creds = {"username":username,"password":password}
                 file.write(str(json.dumps(creds)))
                 self.window.hide()
 
                 logging.info('LOG | 200 OK, SAVED')
+                self.window = MainWindow()
+
+                self.window.show()
         except Exception as e:
             self.window.error_label.setText(str(e))
             QTimer.singleShot(0,self.window.resize)  
@@ -36,14 +60,14 @@ class main():
     def getCredentials(self):
         self.window = LoginWindow()
         try:
-            with open("credenziali.json", "r") as file:
+            with open(CREDENZIALI_JSON, "r") as file:
                 creds = json.loads(file.read())
                 username = creds["username"]
                 password = creds["password"]
                 self.login(username,password)
                 
                 logging.info("LOG | 200 OK, LOGGED IN")
-                self.window = MainWindow()
+                self.window = MainWindow() #TODO da qui in poi dovrebbe essere una funzione 
 
                 self.window.show()
         except FileNotFoundError:
