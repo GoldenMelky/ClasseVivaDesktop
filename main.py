@@ -40,6 +40,7 @@ class main():
     def __init__(self):
         self.getCredentials()
 
+    # Tenta il login, se va a buon fine aggiorna le credenziali in credenziali.json, sennò da errore all'utente
     def login(self,username,password): # VICCCC DEVI SCRIVERE I COMMENTI, STO FACEDO IL REVERSE DI UN PROGRAMMA A CUI HO ACCESSO AL SC 
         try:
             self.user = API_HANDLER.Utente(username,password)
@@ -54,9 +55,9 @@ class main():
                 self.window.show()
         except Exception as e:
             self.window.error_label.setText(str(e))
-            QTimer.singleShot(0,self.window.resize)  
+            QTimer.singleShot(0,self.window.resize)  # aggiorna la larghezza della finestra
 
-        
+    # Ottiene le credenziali, se non sono salvate le chiede all'utente
     def getCredentials(self):
         self.window = LoginWindow()
         try:
@@ -70,11 +71,18 @@ class main():
                 self.window = MainWindow() #TODO da qui in poi dovrebbe essere una funzione 
 
                 self.window.show()
+                self.window.sidebar_clicked.connect(self.sidebar_clicked)
         except FileNotFoundError:
             self.window.show()
             self.window.login_attempt.connect(self.login)
+    
+    def sidebar_clicked(self, btn):
+        self.window.clear_events()
+        self.window.set_events(today(self.user, "20250606"))
 
-def today(user, data: str=""):
+
+# Restituisce una lista di lezioni, compiti e note del giorno dato
+def today(user: API_HANDLER.Utente, data: str=""):
     if not data:
         data = datetime.now().strftime("%Y%m%d")
     output = []

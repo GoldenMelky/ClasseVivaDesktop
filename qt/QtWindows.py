@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QPushButton, QCalendarWidget, QGridLayout,QToolButton
+from PySide6.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QPushButton, QCalendarWidget, QGridLayout,QToolButton, QFrame, QScrollArea
 from PySide6.QtCore import Signal, Qt, QSize
 from PySide6.QtGui import QPixmap, QPalette, QIcon
 
@@ -64,6 +64,41 @@ class MainWindow(QMainWindow):
         "data/icons/voti.svg",
         "data/icons/note.svg"
     ]
+
+    sidebar_clicked = Signal(str)
+
+    def clear_events(self):
+        while self.events.count():
+            widget = self.events.takeAt(0).widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+
+    def set_events(self, list:list):
+        print(list)
+        for event in list:
+            frame_layout = QVBoxLayout()
+
+            frame = QFrame()
+            frame.setStyleSheet("background-color:rgba(0, 0, 0, 0.5); border-radius: 10px;")
+            frame.setFrameShape(QFrame.StyledPanel)
+            frame.setFrameShadow(QFrame.Raised)
+
+            title = QLabel(event["title"])
+            title.setStyleSheet("font: 15pt; background-color:rgba(0, 0, 0, 0);")
+            subtitle = QLabel(event["subtitle"])
+            subtitle.setStyleSheet("font:12pt;background-color:rgba(0, 0, 0, 0);")
+            
+            notes = QLabel(event["notes"])
+            notes.setStyleSheet("background-color:rgba(0, 0, 0, 0);")
+            notes.setWordWrap(True)
+
+            frame_layout.addWidget(title)
+            frame_layout.addWidget(subtitle)
+            frame_layout.addWidget(notes)
+            frame.setLayout(frame_layout)
+            self.events.addWidget(frame)
+
     def __init__(self):
         super().__init__()
         
@@ -76,8 +111,13 @@ class MainWindow(QMainWindow):
             btn.setIconSize(btn.size())
             btn.setStyleSheet("background: transparent; border: none;")
             btn.setFocusPolicy(Qt.NoFocus)
+            btn.setObjectName(iconpath.split("/")[-1].split(".")[0])
+            btn.clicked.connect(lambda checked, b=btn: self.sidebar_clicked.emit(b.objectName()))
             iconbar_layout.addWidget(btn)
         iconbar_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+
+
 
         setting_layout = QVBoxLayout()
         sett = QToolButton()
@@ -101,20 +141,36 @@ class MainWindow(QMainWindow):
         sidebar.setLayout(sidebar_layout)
         sidebar.setFixedWidth(sidebar.sizeHint().width())
 
-        events = QVBoxLayout()
-        label2 = QLabel("iconbar")
-        label3 = QLabel("iconbar")
-        events.addWidget(label2)
-        events.addWidget(label3)
+        events_widget = QWidget()
+        self.events = QVBoxLayout(events_widget)
+        self.events.addWidget(QLabel("Click any icon"))
+
+        events_scroll = QScrollArea()
+        events_scroll.setStyleSheet("background: transparent; border: none;")
+        events_scroll.setWidgetResizable(True)
+        events_scroll.setWidget(events_widget)
 
         layout = QHBoxLayout()
         layout.addWidget(sidebar)
-        layout.addLayout(events)
+        layout.addWidget(events_scroll)
 
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
         self.resize(600,400)
 
-        
-        
+        # widget (QWidget)                                                      #   widget principale
+        #   └── layout (QHBoxLayout)                                            #   layout
+        #         ├── sidebar (QWidget)                                         #   barra laterale
+        #         │     └── sidebar_layout (QVBoxLayout)                        #   layout della barra laterale
+        #         │           ├── iconbar_layout (QVBoxLayout)                  #   layout delle icone
+        #         │           │     └── btn (QToolButton × n)                   #   icone
+        #         │           └── setting_layout (QVBoxLayout)                  #   layout del hamburger menu
+        #         │                 └── sett (QToolButton)                      #   menu
+        #         └── events_scroll (QScrollArea)                               #   
+        #               └── events_widget (QWidget)                             #
+        #                     └── self.events (QVBoxLayout)                     #
+        #                           └── frame (QFrame × n)                      #
+        #                                 └── frame_layout (QVBoxLayout)        #
+        #                                       ├── title (QLabel)              #
+        #                                       └── subtitle (QLabel)           #
