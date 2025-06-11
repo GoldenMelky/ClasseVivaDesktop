@@ -42,6 +42,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 #########################################
 class main():
     def __init__(self):
+        self.user = None
         self.getCredentials()
 
     def startMainWindow(self):
@@ -58,6 +59,7 @@ class main():
         try:
             if os.path.exists(CREDENZIALI_JSON):
                 logging.info('LOG | Credentials file already exists. Skipping login.')
+                self.user = API_HANDLER.Utente(username, password)
                 return
             self.user = API_HANDLER.Utente(username,password)
             with open(CREDENZIALI_JSON, "w") as file:
@@ -95,11 +97,12 @@ class main():
             self.window.login_attempt.connect(self.login)
     
     #########################################
-    #         SIDEBAR EVENT HANDLER         #
-    #########################################
     def sidebar_clicked(self, btn):
         self.window.clear_events()
-        self.window.set_events(today(self.user, "20250606"))
+        if self.user is not None:
+            self.window.set_events(today(self.user, "20250606"))
+        else:
+            logging.error("sidebar_clicked called but self.user is None")
 
 
 #########################################
