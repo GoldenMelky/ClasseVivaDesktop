@@ -59,8 +59,7 @@ class main():
         try:
             if os.path.exists(CREDENZIALI_JSON):
                 logging.info('LOG | Credentials file already exists. Skipping login.')
-                self.user = API_HANDLER.Utente(username, password)
-                return
+
             self.user = API_HANDLER.Utente(username,password)
             with open(CREDENZIALI_JSON, "w") as file:
                 creds = {"username":username,"password":password}
