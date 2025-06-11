@@ -6,7 +6,7 @@ from time import sleep
 from PIL import Image, ImageTk
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QColor
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, QDate
 from qt.QtWindows import LoginWindow 
 from qt.QtWindows import MainWindow
 import sys
@@ -91,13 +91,15 @@ class main():
             self.window.login_attempt.connect(self.login)
     
     #########################################
-    def sidebar_clicked(self, btn):
-        self.window.clear_events()
+    def sidebar_clicked(self, btn, date=""):
+        self.window.clear_tab()
         match btn:
             case "today":
-                self.window.set_events(today(self.user, self.window.cal.date().toString("yyyyMMdd")))
+                if date:
+                    self.window.selected_date = QDate.fromString(date, "yyyyMMdd")
+                self.window.set_tab(today(self.user, date),"today")
             case "note":
-                self.window.set_events(note(self.user))
+                self.window.set_tab(note(self.user),"Note")
 
 dict_note={
         "NTTE": "Annotazione",

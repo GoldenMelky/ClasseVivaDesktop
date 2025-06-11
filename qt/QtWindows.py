@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QDateEdit, QApplication, QMainWindow, QLineEdit, Q
 from PySide6.QtCore import Signal, Qt, QSize, QDate
 from PySide6.QtGui import QPixmap, QPalette, QIcon
 from datetime import date
+from qt.tabs import *
 
 #########################################
 #              SETTINGS                 #
@@ -66,42 +67,28 @@ class MainWindow(QMainWindow):
         "data/icons/voti.svg",
         "data/icons/note.svg"
     ]
+    sidebar_clicked = Signal(str,str)
 
-    sidebar_clicked = Signal(str)
-
-    def clear_events(self):
-        while self.events.count():
-            widget = self.events.takeAt(0).widget()
+    
+    def clear_tab(self):
+        while self.layout.count() > 1:
+            item = self.layout.takeAt(1)
+            widget = item.widget()
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()
-
-    def set_events(self, list:list):
-        for event in list:
-            frame_layout = QVBoxLayout()
-
-            frame = QFrame()
-            frame.setStyleSheet("background-color:rgba(0, 0, 0, 0.5); border-radius: 10px;")
-            frame.setFrameShape(QFrame.StyledPanel)
-            frame.setFrameShadow(QFrame.Raised)
-
-            title = QLabel(event["title"])
-            title.setStyleSheet("font: 15pt; background-color:rgba(0, 0, 0, 0);")
-            subtitle = QLabel(event["subtitle"])
-            subtitle.setStyleSheet("font:12pt;background-color:rgba(0, 0, 0, 0);")
-            
-            notes = QLabel(event["notes"])
-            notes.setStyleSheet("background-color:rgba(0, 0, 0, 0);")
-            notes.setWordWrap(True)
-
-            frame_layout.addWidget(title)
-            frame_layout.addWidget(subtitle)
-            frame_layout.addWidget(notes)
-            frame.setLayout(frame_layout)
-            self.events.addWidget(frame)
+    
+    def set_tab(self,list, tab):
+        match tab:
+            case "today":
+                tab_widget = today_tab(list,self.selected_date)
+                tab_widget.sidebar_clicked.connect(self.sidebar_clicked.emit)
+                self.layout.addWidget(tab_widget)
+                
 
     def __init__(self):
         super().__init__()
+        self.selected_date = QDate.currentDate()
         self.setWindowTitle("ClasseViva")
         self.setBackgroundRole
         iconbar_layout = QVBoxLayout()
@@ -114,7 +101,7 @@ class MainWindow(QMainWindow):
             #btn.setStyleSheet("background: transparent; border: none;")
             btn.setFocusPolicy(Qt.NoFocus)
             btn.setObjectName(iconpath.split("/")[-1].split(".")[0])
-            btn.clicked.connect(lambda checked, b=btn: self.sidebar_clicked.emit(b.objectName()))
+            btn.clicked.connect(lambda checked, b=btn: self.sidebar_clicked.emit(b.objectName(),""))
             iconbar_layout.addWidget(btn)
         iconbar_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -143,30 +130,13 @@ class MainWindow(QMainWindow):
         sidebar.setLayout(sidebar_layout)
         sidebar.setFixedWidth(sidebar.sizeHint().width())
 
-        events_widget = QWidget()
-        self.events = QVBoxLayout(events_widget)
-        self.events.addWidget(QLabel("Click any icon"))
+        
 
-        events_scroll = QScrollArea()
-        events_scroll.setStyleSheet("background: transparent; border: none;")
-        events_scroll.setWidgetResizable(True)
-        events_scroll.setWidget(events_widget)
-
-        right_bar = QVBoxLayout()
-        self.cal = QDateEdit()
-        self.cal.setDisplayFormat("d MMM yy")
-        self.cal.setDate(QDate(date.today().year, date.today().month, date.today().day))
-        self.cal.setCalendarPopup(True)
-        self.cal.dateChanged.connect(lambda: self.sidebar_clicked.emit("today"))
-        right_bar.addWidget(self.cal)
-        right_bar.addWidget(events_scroll)
-
-        layout = QHBoxLayout()
-        layout.addWidget(sidebar)
-        layout.addLayout(right_bar)
-
+        self.layout:QHBoxLayout = QHBoxLayout()
+        self.layout.addWidget(sidebar)
+        self.layout.addWidget(QLabel("Click any icon"))
         widget = QWidget()
-        widget.setLayout(layout)
+        widget.setLayout(self.layout)
         self.setCentralWidget(widget)
         self.resize(600,400)
 
@@ -178,10 +148,10 @@ class MainWindow(QMainWindow):
         #         │           │     └── btn (QToolButton × n)                   #   icone
         #         │           └── setting_layout (QVBoxLayout)                  #   layout del hamburger menu
         #         │                 └── sett (QToolButton)                      #   menu
-        #         └── right_bar (QVBoxLayout)                                   #   
-        #             └── events_scroll (QScrollArea)                           #   
-        #                   └── events_widget (QWidget)                         #
-        #                         └── self.events (QVBoxLayout)                 #
+        #         └── self.right_bar (QVBoxLayout)                                   #   
+        #             └── tab_scroll (QScrollArea)                           #   
+        #                   └── tab_widget (QWidget)                         #
+        #                         └── self.tab (QVBoxLayout)                 #
         #                               └── frame (QFrame × n)                  #
         #                                     └── frame_layout (QVBoxLayout)    #
         #                                           ├── title (QLabel)          #
