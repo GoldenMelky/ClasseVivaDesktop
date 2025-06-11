@@ -41,16 +41,18 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 #              MAIN CLASS               #
 #########################################
 class main():
+
     def __init__(self):
         self.user = None
         self.getCredentials()
+        self.startMainWindow()
 
     def startMainWindow(self):
         self.window = MainWindow()
         self.window.show()
         self.window.sidebar_clicked.connect(self.sidebar_clicked)
         self.window.set_events(today(self.user, "20250606"))
-
+        
     #########################################
     #              LOGIN LOGIC              #
     #########################################
@@ -65,10 +67,7 @@ class main():
                 creds = {"username":username,"password":password}
                 file.write(str(json.dumps(creds)))
                 self.window.close()
-
                 logging.info('LOG | 200 OK, SAVED')
-                self.window = MainWindow()
-                self.window.show()
         except Exception as e:
             self.window.error_label.setText(str(e))
             QTimer.singleShot(0,self.window.resize)  # aggiorna la larghezza della finestra
@@ -87,10 +86,6 @@ class main():
                 self.login(username,password)
                 
                 logging.info("LOG | 200 OK, LOGGED IN")
-                self.window = MainWindow() #TODO da qui in poi dovrebbe essere una funzione 
-
-                self.window.show()
-                self.window.sidebar_clicked.connect(self.sidebar_clicked)
         except FileNotFoundError:
             self.window.show()
             self.window.login_attempt.connect(self.login)
