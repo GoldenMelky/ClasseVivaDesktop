@@ -1,2 +1,18 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
-*
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+.env
+.DS_Store
+*.log
+*.bak
+*.swp
+.idea/
+.vscode/
+dist/
+build/
+*.egg-info/

@@ -17,7 +17,7 @@ import os
 #########################################
 #              SETTINGS                 #
 #########################################
-CONFIG_FILE = "config.conf"
+CONFIG_FILE = "data/config.conf"
 
 config = configparser.ConfigParser()
 
