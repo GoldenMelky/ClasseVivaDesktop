@@ -72,7 +72,10 @@ class Utente:
         return json.loads(response.text)
 
     def note(self):
-        # Recupera le note disciplinari
+        # Recupera le note 
+        # NTTE Annotazione del docente 
+        # NTCL Nota disciplinare
+        # NTWN Richiamo
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/notes/all"
         response = requests.get(endpoint, headers=self.headers)
         return json.loads(response.text)

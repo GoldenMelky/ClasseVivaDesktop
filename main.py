@@ -51,8 +51,8 @@ class main():
         self.window = MainWindow()
         self.window.show()
         self.window.sidebar_clicked.connect(self.sidebar_clicked)
-        self.window.set_events(today(self.user, "20250606"))
-        
+
+
     #########################################
     #              LOGIN LOGIC              #
     #########################################
@@ -93,12 +93,17 @@ class main():
     #########################################
     def sidebar_clicked(self, btn):
         self.window.clear_events()
-        if self.user is not None:
-            self.window.set_events(today(self.user, "20250606"))
-        else:
-            logging.error("sidebar_clicked called but self.user is None")
+        match btn:
+            case "today":
+                self.window.set_events(today(self.user, self.window.cal.date().toString("yyyyMMdd")))
+            case "note":
+                self.window.set_events(note(self.user))
 
-
+dict_note={
+        "NTTE": "Annotazione",
+        "NTCL":"Nota disciplinare",
+        "NTWN":"Richiamo" 
+    }
 #########################################
 #           DATA RETRIEVAL UTILS        #
 #########################################
@@ -138,12 +143,12 @@ def today(user: API_HANDLER.Utente, data: str=""):
             "type": "compito"
         })
     note = user.note()
-    for i in note.values():
-        for nota in i:
+    for type in note:
+        for nota in note[type]:
             if nota["evtDate"] == f"{'-'.join(map(str,(data[:4],data[4:6],data[6:])))}":
                 output.append({
                     "title": nota["authorName"],
-                    "subtitle": nota["evtDate"],
+                    "subtitle": dict_note[type],
                     "notes": nota["evtText"],
                     "type": "nota"
                 })
@@ -152,12 +157,13 @@ def today(user: API_HANDLER.Utente, data: str=""):
 def note(user):
     note = user.note()
     output = []
-    for i in note.values():
-        for nota in i:
+    for type in note:
+        for nota in note[type]:
             output.append({
                 "title": nota["authorName"],
-                "subtitle": nota["evtDate"],
-                "notes": nota["evtText"]
+                "subtitle": f'{nota["evtDate"]} - {dict_note[type]}',
+                "notes": nota["evtText"],
+                "type": dict_note[type]
             })
     return output
 

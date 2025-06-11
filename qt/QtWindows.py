@@ -1,6 +1,7 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QPushButton, QCalendarWidget, QGridLayout,QToolButton, QFrame, QScrollArea
-from PySide6.QtCore import Signal, Qt, QSize
+from PySide6.QtWidgets import QDateEdit, QApplication, QMainWindow, QLineEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QPushButton, QCalendarWidget, QGridLayout,QToolButton, QFrame, QScrollArea
+from PySide6.QtCore import Signal, Qt, QSize, QDate
 from PySide6.QtGui import QPixmap, QPalette, QIcon
+from datetime import date
 
 #########################################
 #              SETTINGS                 #
@@ -59,6 +60,7 @@ class LoginWindow(QMainWindow):
 
 class MainWindow(QMainWindow):
     icon_paths = [
+        "data/icons/today.svg",
         "data/icons/agenda.svg",
         "data/icons/lezioni.svg",
         "data/icons/voti.svg",
@@ -75,7 +77,6 @@ class MainWindow(QMainWindow):
                 widget.deleteLater()
 
     def set_events(self, list:list):
-        print(list)
         for event in list:
             frame_layout = QVBoxLayout()
 
@@ -151,9 +152,18 @@ class MainWindow(QMainWindow):
         events_scroll.setWidgetResizable(True)
         events_scroll.setWidget(events_widget)
 
+        right_bar = QVBoxLayout()
+        self.cal = QDateEdit()
+        self.cal.setDisplayFormat("d MMM yy")
+        self.cal.setDate(QDate(date.today().year, date.today().month, date.today().day))
+        self.cal.setCalendarPopup(True)
+        self.cal.dateChanged.connect(lambda: self.sidebar_clicked.emit("today"))
+        right_bar.addWidget(self.cal)
+        right_bar.addWidget(events_scroll)
+
         layout = QHBoxLayout()
         layout.addWidget(sidebar)
-        layout.addWidget(events_scroll)
+        layout.addLayout(right_bar)
 
         widget = QWidget()
         widget.setLayout(layout)
@@ -168,10 +178,11 @@ class MainWindow(QMainWindow):
         #         │           │     └── btn (QToolButton × n)                   #   icone
         #         │           └── setting_layout (QVBoxLayout)                  #   layout del hamburger menu
         #         │                 └── sett (QToolButton)                      #   menu
-        #         └── events_scroll (QScrollArea)                               #   
-        #               └── events_widget (QWidget)                             #
-        #                     └── self.events (QVBoxLayout)                     #
-        #                           └── frame (QFrame × n)                      #
-        #                                 └── frame_layout (QVBoxLayout)        #
-        #                                       ├── title (QLabel)              #
-        #                                       └── subtitle (QLabel)           #
+        #         └── right_bar (QVBoxLayout)                                   #   
+        #             └── events_scroll (QScrollArea)                           #   
+        #                   └── events_widget (QWidget)                         #
+        #                         └── self.events (QVBoxLayout)                 #
+        #                               └── frame (QFrame × n)                  #
+        #                                     └── frame_layout (QVBoxLayout)    #
+        #                                           ├── title (QLabel)          #
+        #                                           └── subtitle (QLabel)       #
