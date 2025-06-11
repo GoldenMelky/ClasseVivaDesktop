@@ -69,7 +69,6 @@ class Utente:
         # Recupera i voti dello studente
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/grades"
         response = requests.get(endpoint, headers=self.headers)
-        print(response.text)
         return json.loads(response.text)
 
     def note(self):

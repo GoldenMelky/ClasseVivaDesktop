@@ -101,11 +101,12 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        
+        self.setWindowTitle("ClasseViva")
+        self.setBackgroundRole
         iconbar_layout = QVBoxLayout()
         for iconpath in self.icon_paths:
             btn = QToolButton()
-            icon=QPixmap(iconpath)
+            icon=QIcon(iconpath)
             btn.setFixedSize(40,40)
             btn.setIcon(icon)
             btn.setIconSize(btn.size())
@@ -121,11 +122,11 @@ class MainWindow(QMainWindow):
 
         setting_layout = QVBoxLayout()
         sett = QToolButton()
-        icon=QPixmap("icons/menu.svg")
+        icon=QPixmap("data/icons/menu.svg")
         sett.setFixedSize(40,40)
         sett.setIcon(icon)
         sett.setIconSize(btn.size())
-        sett.setStyleSheet("background: transparent; border: none;")
+        #sett.setStyleSheet("background: transparent; border: none;")
         sett.setFocusPolicy(Qt.NoFocus)
 
 
