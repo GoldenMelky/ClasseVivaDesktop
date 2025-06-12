@@ -77,11 +77,8 @@ class MainWindow(QMainWindow):
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()
-        self.loading = QLabel("loading...")
-        self.layout.addWidget(self.loading)
     
     def set_tab(self,list, tab):
-        self.loading.deleteLater()
         match tab:
             case "today":
                 tab_widget = today_tab(list,self.selected_date)
@@ -144,7 +141,7 @@ class MainWindow(QMainWindow):
         self.resize(600,400)
 
         # widget (QWidget)                                                      #   widget principale
-        #   └── self.layout (QHBoxLayout)                                       #   layout
+        #   └── layout (QHBoxLayout)                                            #   layout
         #         ├── sidebar (QWidget)                                         #   barra laterale
         #         │     └── sidebar_layout (QVBoxLayout)                        #   layout della barra laterale
         #         │           ├── iconbar_layout (QVBoxLayout)                  #   layout delle icone
@@ -159,4 +156,3 @@ class MainWindow(QMainWindow):
         #                                     └── frame_layout (QVBoxLayout)    #
         #                                           ├── title (QLabel)          #
         #                                           └── subtitle (QLabel)       #
-        #outdated
