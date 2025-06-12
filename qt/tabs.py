@@ -8,14 +8,19 @@ class today_tab(QWidget):
     def __init__(self,list:list,initial_date: QDate):
         super().__init__()
         main_layout = QVBoxLayout(self)
-        title_label = QLabel("name")
-        main_layout.addWidget(title_label)
+        title_layout = QHBoxLayout()
+        main_layout.addLayout(title_layout)
+
+        tab_title = QLabel("Oggi a scuola")
+        title_layout.addWidget(tab_title)
+        tab_title.setStyleSheet("font: 15pt;")
+
         date_picker = QDateEdit()
-        date_picker.setDisplayFormat("d MMM yy")
+        date_picker.setDisplayFormat("dd MMMM yyyy")
         date_picker.setDate(initial_date)
         date_picker.setCalendarPopup(True)
         date_picker.dateChanged.connect(lambda: self.sidebar_clicked.emit("today", date_picker.date().toString("yyyyMMdd")))
-        main_layout.addWidget(date_picker)
+        title_layout.addWidget(date_picker)
         events_layout = QVBoxLayout()
 
         for event in list:
