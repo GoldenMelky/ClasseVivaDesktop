@@ -6,7 +6,7 @@ from time import sleep
 from PIL import Image, ImageTk
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QColor
-from PySide6.QtCore import QTimer, QDate
+from PySide6.QtCore import QTimer, QDate,QObject, Signal, QRunnable,QThreadPool
 from qt.QtWindows import LoginWindow 
 from qt.QtWindows import MainWindow
 import sys
@@ -37,6 +37,23 @@ CREDENZIALI_JSON = config['DEFAULT'].get('credenziali_file', 'data/credenziali.j
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
+class WorkerSignals(QObject):
+    finished = Signal(object, str)  # result, tab
+
+class GenericWorker(QRunnable):
+    def __init__(self, func, args=(), kwargs=None, tab=""):
+        super().__init__()
+        if not isinstance(args, tuple):
+            args = (args,)
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs or {}
+        self.tab = tab
+        self.signals = WorkerSignals()
+
+    def run(self):
+        result = self.func(*self.args, **self.kwargs)
+        self.signals.finished.emit(result, self.tab)
 #########################################
 #              MAIN CLASS               #
 #########################################
@@ -44,6 +61,7 @@ class main():
 
     def __init__(self):
         self.user = None
+        self.threadpool = QThreadPool()
         self.getCredentials()
         self.startMainWindow()
 
@@ -97,9 +115,16 @@ class main():
             case "today":
                 if date:
                     self.window.selected_date = QDate.fromString(date, "yyyyMMdd")
-                self.window.set_tab(today(self.user, date),"today")
+                worker = GenericWorker(today, args=(self.user, date), tab="today")
+                worker.signals.finished.connect(self.on_tab_data_ready)
+                self.threadpool.start(worker)
             case "note":
-                self.window.set_tab(note(self.user),"Note")
+                worker = GenericWorker(note, args=self.user, tab="today")
+                worker.signals.finished.connect(self.on_tab_data_ready)
+                self.threadpool.start(worker)
+                
+    def on_tab_data_ready(self, data, tab):
+        self.window.set_tab(data, tab)
 
 dict_note={
         "NTTE": "Annotazione",
@@ -156,7 +181,7 @@ def today(user: API_HANDLER.Utente, data: str=""):
                 })
     return output
 
-def note(user):
+def note(user: API_HANDLER.Utente):
     note = user.note()
     output = []
     for type in note:
