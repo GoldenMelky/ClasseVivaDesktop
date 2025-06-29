@@ -104,4 +104,6 @@ class Utente:
             end = begin
         endpoint = apiUrl + f"v1/students/{self.login['studentId']}/lessons/{begin}/{end}"
         response = requests.get(endpoint, headers=self.headers)
-        return json.loads(response.text)
+        lessons = json.loads(response.text)
+        lessons["lessons"].sort(key=lambda e: e["evtHPos"])
+        return lessons

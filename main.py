@@ -99,7 +99,7 @@ class main():
                     self.window.selected_date = QDate.fromString(date, "yyyyMMdd")
                 self.window.set_tab(today(self.user, date),"today")
             case "note":
-                self.window.set_tab(note(self.user),"Note")
+                self.window.set_tab(note(self.user),"today")
 
 dict_note={
         "NTTE": "Annotazione",
@@ -127,32 +127,29 @@ def today(user: API_HANDLER.Utente, data: str=""):
             "title": title,
             "subtitle": subtitle,
             "notes": lezione['lessonArg'],
-            "type": "lezione"
+            "type": "Lezioni"
         })
     compiti = user.agenda(data)
     for evento in compiti["agenda"]:
         if evento["subjectDesc"]:
             title = evento["subjectDesc"]
-            subtitle = evento['authorName'] + " - "
+            subtitle = evento['authorName']
         else:
             title = evento['authorName']
-            subtitle = ""
-        subtitle += f"{evento['evtDatetimeBegin'].split('T')[1].split('+')[0][:-3]}-{evento['evtDatetimeEnd'].split('T')[1].split('+')[0][:-3]}"
         output.append({
             "title": title,
-            "subtitle": subtitle,
             "notes": evento['notes'],
-            "type": "compito"
+            "type": "Compiti"
         })
     note = user.note()
     for type in note:
         for nota in note[type]:
             if nota["evtDate"] == f"{'-'.join(map(str,(data[:4],data[4:6],data[6:])))}":
                 output.append({
-                    "title": nota["authorName"],
-                    "subtitle": dict_note[type],
+                    "title": dict_note[type],
+                    "subtitle": nota["authorName"],
                     "notes": nota["evtText"],
-                    "type": "nota"
+                    "type": "Note"
                 })
     return output
 
@@ -162,8 +159,8 @@ def note(user):
     for type in note:
         for nota in note[type]:
             output.append({
-                "title": nota["authorName"],
-                "subtitle": f'{nota["evtDate"]} - {dict_note[type]}',
+                "title": dict_note[type],
+                "subtitle": f'{nota["authorName"]} - {nota["evtDate"]}',
                 "notes": nota["evtText"],
                 "type": dict_note[type]
             })
