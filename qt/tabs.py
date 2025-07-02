@@ -1,7 +1,5 @@
-from PySide6.QtWidgets import QSizePolicy, QDateEdit, QApplication, QMainWindow, QLineEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QPushButton, QCalendarWidget, QGridLayout,QToolButton, QFrame, QScrollArea
-from PySide6.QtCore import Signal, Qt, QSize, QDate
-from PySide6.QtGui import QPixmap, QPalette, QIcon
-from datetime import date
+from PySide6.QtWidgets import QSizePolicy, QDateEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QFrame, QScrollArea
+from PySide6.QtCore import Signal, Qt, QDate
 
 class today_tab(QWidget):
     sidebar_clicked = Signal(str,str)

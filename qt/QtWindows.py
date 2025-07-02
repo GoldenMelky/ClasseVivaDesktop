@@ -1,7 +1,6 @@
-from PySide6.QtWidgets import QDateEdit, QApplication, QMainWindow, QLineEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QPushButton, QCalendarWidget, QGridLayout,QToolButton, QFrame, QScrollArea
-from PySide6.QtCore import Signal, Qt, QSize, QDate
-from PySide6.QtGui import QPixmap, QPalette, QIcon
-from datetime import date
+from PySide6.QtWidgets import QMainWindow, QLineEdit, QVBoxLayout,QHBoxLayout, QLabel, QWidget, QPushButton, QToolButton
+from PySide6.QtCore import Signal, Qt, QDate
+from PySide6.QtGui import QPixmap, QIcon
 from qt.tabs import *
 
 #########################################
@@ -13,6 +12,7 @@ class LoginWindow(QMainWindow):
     login_attempt = Signal(str, str)
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon("cvvicon.png"))
         self.setWindowTitle("Login")
         
         username_label = QLabel(text="Username")
@@ -88,6 +88,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon("cvvicon.png"))
         self.selected_date = QDate.currentDate()
         self.setWindowTitle("ClasseViva")
         self.setBackgroundRole

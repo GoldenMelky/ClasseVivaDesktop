@@ -1,16 +1,11 @@
 import api.handler.API_HANDLER as API_HANDLER
 import json
 from datetime import datetime
-from threading import Thread
-from time import sleep
-from PIL import Image, ImageTk
-from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QApplication, QDialog,QVBoxLayout,QLabel
 from PySide6.QtCore import QTimer, QDate
 from qt.QtWindows import LoginWindow 
 from qt.QtWindows import MainWindow
 import sys
-import logging
 import configparser
 import os
 
@@ -34,7 +29,6 @@ else:
 
 DATA = config['DEFAULT'].get('data_dir', 'data/')
 CREDENZIALI_JSON = config['DEFAULT'].get('credenziali_file', 'data/credenziali.json')
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 #########################################
@@ -59,16 +53,21 @@ class main():
     # Tenta il login, se va a buon fine aggiorna le credenziali in credenziali.json, sennò da errore all'utente
     def login(self,username,password): # VICCCC DEVI SCRIVERE I COMMENTI, STO FACEDO IL REVERSE DI UN PROGRAMMA A CUI HO ACCESSO AL SC 
         try:
-            if os.path.exists(CREDENZIALI_JSON):
-                logging.info('LOG | Credentials file already exists. Skipping login.')
-
             self.user = API_HANDLER.Utente(username,password)
             with open(CREDENZIALI_JSON, "w") as file:
                 creds = {"username":username,"password":password}
                 file.write(str(json.dumps(creds)))
                 self.window.close()
-                logging.info('LOG | 200 OK, SAVED')
         except Exception as e:
+            if "HTTPSConnectionPool" in str(e):
+                errorDialog = QDialog()
+                errorDialog.setWindowTitle("ClasseViva")
+                errorDialogLayout = QVBoxLayout()
+                errorLabel = QLabel("Nessuna connessione ad internet, collegati e riprova.")
+                errorDialogLayout.addWidget(errorLabel)
+                errorDialog.setLayout(errorDialogLayout)
+                errorDialog.exec()
+                quit()
             self.window.error_label.setText(str(e))
             QTimer.singleShot(0,self.window.resize)  # aggiorna la larghezza della finestra
 
@@ -85,7 +84,6 @@ class main():
                 password = creds["password"]
                 self.login(username,password)
                 
-                logging.info("LOG | 200 OK, LOGGED IN")
         except FileNotFoundError:
             self.window.show()
             self.window.login_attempt.connect(self.login)
@@ -181,24 +179,12 @@ def voti(user):
 #              MAIN ENTRY               #
 #########################################
 if __name__ == "__main__":
-    def console_listener():
-        while True:
-            cmd = input(">> ").strip()
-            if cmd.lower() == "exit":
-                logging.info("LOG | Exit command received. Closing app.")
-                QApplication.quit()
-                break
-
-    try:
         app = QApplication(sys.argv)
         main = main()  # considera rinominare la classe in MainApp per chiarezza
 
         # Avvia il listener da console in un thread separato
-        Thread(target=console_listener, daemon=True).start()
 
         app.exec()
-    except KeyboardInterrupt:
-        logging.warning("KeyboardInterrupt | Manual shutdown detected.")
 
 
 # SONO ATTUALMENTE LE 01:23 AM E STO IPLEMENTANDO IL LOGGING QUI NON SO PERCHÈ :3

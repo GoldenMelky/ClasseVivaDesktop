@@ -10,4 +10,5 @@ ClasseViva Desktop è un client di ClasseViva di Spaggiari per desktop scritto i
 - [ ] Bacheca
 - [ ] Files docenti
 - [ ] Anno precedente
+- [ ] Cache
 - [ ] Altro?
